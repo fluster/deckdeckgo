@@ -131,7 +131,7 @@ interface I18nEditor {
   go_offline: string;
   more: string;
   exit_fullscreen: string;
-  backup: string;
+  export: string;
   delete: string;
   notes: string;
   notes_display: string;
@@ -503,6 +503,18 @@ interface I18nImport {
   done: string;
 }
 
+interface I18nTools {
+  new: string;
+  new_presentation: string;
+  new_warning_text: string;
+  cloud: string;
+  cloud_error: string;
+  cloud_in_progress: string;
+  cloud_idle: string;
+  cloud_pending: string;
+  open: string;
+}
+
 interface I18n {
   lang: Languages;
   core: I18nCore;
@@ -522,4 +534,5 @@ interface I18n {
   shapes: I18nShapes;
   poll: I18nPoll;
   import: I18nImport;
+  tools: I18nTools;
 }

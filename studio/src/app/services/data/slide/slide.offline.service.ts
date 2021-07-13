@@ -6,6 +6,7 @@ import {Slide, SlideAttributes, SlideData} from '../../../models/data/slide';
 
 import {OfflineUtils} from '../../../utils/editor/offline.utils';
 import {FirestoreUtils} from '../../../utils/editor/firestore.utils';
+import { syncDeleteSlide, syncUpdateSlide } from '../../../utils/editor/sync.utils';
 
 export class SlideOfflineService {
   private static instance: SlideOfflineService;
@@ -33,12 +34,12 @@ export class SlideOfflineService {
 
         const now: Date = new Date();
 
-        // @ts-ignore
         slide.data.created_at = now;
-        // @ts-ignore
         slide.data.updated_at = now;
 
         await set(`/decks/${deckId}/slides/${slide.id}`, slide);
+
+        await syncUpdateSlide({deckId, slideId: slide.id});
 
         resolve(slide);
       } catch (err) {
@@ -59,8 +60,8 @@ export class SlideOfflineService {
     });
   }
 
-  update(deckId: string, slide: Slide): Promise<void> {
-    return new Promise<void>(async (resolve, reject) => {
+  update(deckId: string, slide: Slide): Promise<Slide> {
+    return new Promise<Slide>(async (resolve, reject) => {
       try {
         if (!slide || !slide.data) {
           reject('Invalid slide data');
@@ -73,12 +74,13 @@ export class SlideOfflineService {
           slide.data.content = null;
         }
 
-        // @ts-ignore
         slide.data.updated_at = new Date();
 
         await set(`/decks/${deckId}/slides/${slide.id}`, slide);
 
-        resolve();
+        await syncUpdateSlide({deckId, slideId: slide.id});
+
+        resolve(slide);
       } catch (err) {
         reject(err);
       }
@@ -90,24 +92,12 @@ export class SlideOfflineService {
       try {
         await del(`/decks/${deckId}/slides/${slideId}`);
 
-        await this.saveSlidesToDelete(slideId);
+        await syncDeleteSlide({deckId, slideId});
 
         resolve();
       } catch (err) {
         reject(err);
       }
     });
-  }
-
-  private async saveSlidesToDelete(slideId: string) {
-    let slidesToDelete: string[] = await get('deckdeckgo_slides_delete');
-
-    if (!slidesToDelete) {
-      slidesToDelete = [];
-    }
-
-    slidesToDelete.push(slideId);
-
-    await set('deckdeckgo_slides_delete', slidesToDelete);
   }
 }

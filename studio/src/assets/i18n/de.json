@@ -61,7 +61,7 @@
   },
   "sign_in": {
     "hi": "Oh, hi 👋! Schön, dass du da bist.",
-    "why": "Melde dich an, um alle Features des Editors zu freizuschalten und deine Präsentationen zu teilen.",
+    "why": "Melde dich an, um deine Präsentationen Online zu speichern und teilen.",
     "additionally": "Sichere zusätzlich den Quellcode deiner Folien auf einem GitHub {0} Repository."
   },
   "settings": {
@@ -124,7 +124,7 @@
     "go_offline": "Offline gehen",
     "more": "Mehr",
     "exit_fullscreen": "Vollbild verlassen",
-    "backup": "Backup",
+    "export": "Export",
     "delete": "Löschen",
     "notes": "Notizen",
     "notes_display": "Deine Notizen werden im {0} angezeigt. Markdown wird unterstützt. 😉",
@@ -486,5 +486,16 @@
     "upload": "Wird hochgeladen...",
     "hang_on_creation": "Warte bitte, wir erstellen deine Folien. Dies könnte bis zu einer Minute dauern.",
     "done": "Dein Deck ist bereit. Du wirst nun weitergeleitet."
+  },
+  "tools": {
+    "new": "Neu",
+    "new_presentation": "Erstelle eine neue Präsentation",
+    "new_warning_text": "Dadurch werden die aktuelle Präsentation und Folien ersetzt. Sind Sie sicher?",
+    "cloud": "Cloud",
+    "cloud_error": "Bei der Cloud-Synchronisierung ist ein Fehler aufgetreten",
+    "cloud_in_progress": "Cloud-Synchronisierung läuft",
+    "cloud_idle": "Cloud-Synchronisierung auf dem neuesten Stand",
+    "cloud_pending": "Cloud-Synchronisierung fällig",
+    "open": "Öffnen"
   }
 }

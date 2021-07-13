@@ -1,9 +1,12 @@
+import {v4 as uuid} from 'uuid';
+
 import {get, set} from 'idb-keyval';
 
-import {Deck, DeckAttributes} from '../../../models/data/deck';
+import {Deck, DeckAttributes, DeckData} from '../../../models/data/deck';
 
 import {OfflineUtils} from '../../../utils/editor/offline.utils';
 import {FirestoreUtils} from '../../../utils/editor/firestore.utils';
+import { syncUpdateDeck } from '../../../utils/editor/sync.utils';
 
 export class DeckOfflineService {
   private static instance: DeckOfflineService;
@@ -17,6 +20,33 @@ export class DeckOfflineService {
       DeckOfflineService.instance = new DeckOfflineService();
     }
     return DeckOfflineService.instance;
+  }
+
+  create(deckData: DeckData): Promise<Deck> {
+    return new Promise<Deck>(async (resolve, reject) => {
+      try {
+        const deckId: string = uuid();
+
+        const now: Date = new Date();
+
+        const deck: Deck = {
+          id: deckId,
+          data: {
+            ...deckData,
+            updated_at: now,
+            created_at: now
+          }
+        };
+
+        await set(`/decks/${deckId}`, deck);
+
+        await syncUpdateDeck(deckId);
+
+        resolve(deck);
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 
   get(deckId: string): Promise<Deck> {
@@ -39,7 +69,6 @@ export class DeckOfflineService {
           return;
         }
 
-        // @ts-ignore
         deck.data.updated_at = new Date();
 
         if (deck.data.background && FirestoreUtils.shouldAttributeBeCleaned(deck.data.background)) {
@@ -57,6 +86,8 @@ export class DeckOfflineService {
         deck.data.attributes = (await OfflineUtils.cleanAttributes(deck.data.attributes)) as DeckAttributes;
 
         await set(`/decks/${deck.id}`, deck);
+
+        await syncUpdateDeck(deck.id);
 
         resolve(deck);
       } catch (err) {

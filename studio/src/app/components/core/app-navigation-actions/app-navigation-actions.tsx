@@ -1,13 +1,18 @@
-import {Component, Event, EventEmitter, Prop, h} from '@stencil/core';
+import {Component, Prop, h, Fragment, Element} from '@stencil/core';
 
-import {popoverController} from '@ionic/core';
+import {alertController, loadingController, popoverController} from '@ionic/core';
 
-import themeStore from '../../../stores/theme.store';
+import {del} from 'idb-keyval';
+
 import authStore from '../../../stores/auth.store';
 import userStore from '../../../stores/user.store';
 import i18n from '../../../stores/i18n.store';
+import errorStore from '../../../stores/error.store';
+import syncStore from '../../../stores/sync.store';
 
 import {signIn} from '../../../utils/core/signin.utils';
+
+import {FileSystemService} from '../../../services/editor/file-system/file-system.service';
 
 @Component({
   tag: 'app-navigation-actions',
@@ -15,11 +20,11 @@ import {signIn} from '../../../utils/core/signin.utils';
   shadow: false
 })
 export class AppNavigationActions {
-  @Prop() signIn: boolean = true;
-  @Prop() write: boolean = true;
-  @Prop() publish: boolean = false;
+  @Element() el: HTMLElement;
 
-  @Event() private actionPublish: EventEmitter<void>;
+  @Prop() signIn: boolean = false;
+
+  private loadInput!: HTMLInputElement;
 
   private async openMenu($event: UIEvent) {
     const popover: HTMLIonPopoverElement = await popoverController.create({
@@ -31,65 +36,172 @@ export class AppNavigationActions {
     await popover.present();
   }
 
+  private async exportData() {
+    try {
+      await FileSystemService.getInstance().exportData();
+    } catch (err) {
+      errorStore.state.error = `Something went wrong. ${err}.`;
+    }
+  }
+
+  private openFilePicker() {
+    this.loadInput?.click();
+  }
+
+  private async importData() {
+    if (!this.loadInput || this.loadInput.files?.length <= 0) {
+      return;
+    }
+
+    const loading: HTMLIonLoadingElement = await loadingController.create({});
+
+    await loading.present();
+
+    try {
+      await FileSystemService.getInstance().importData(this.loadInput.files[0]);
+
+      this.emitReloadDeck();
+    } catch (err) {
+      errorStore.state.error = `Something went wrong. ${err}.`;
+    }
+
+    await loading.dismiss();
+  }
+
+  private async newDeck() {
+    const alert: HTMLIonAlertElement = await alertController.create({
+      header: i18n.state.tools.new_presentation,
+      message: i18n.state.tools.new_warning_text,
+      buttons: [
+        i18n.state.core.cancel,
+        {
+          text: i18n.state.core.ok,
+          handler: async () => {
+            // By removing the reference to the current deck in indexeddb, it will create a new deck on reload
+            await del('deckdeckgo_deck_id');
+
+            this.emitReloadDeck();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  private emitReloadDeck() {
+    const initNewDeck: CustomEvent<void> = new CustomEvent<void>('reloadDeck', {
+      bubbles: true
+    });
+
+    this.el.dispatchEvent(initNewDeck);
+  }
+
   render() {
+    if (this.signIn) {
+      return undefined;
+    }
+
     return (
-      <div>
+      <Fragment>
+        {this.renderActions()}
         {this.renderSignIn()}
-        {this.renderPresentationButton()}
-        {this.renderPublishButton()}
-        {this.renderLoggedIn()}
-      </div>
+        {this.renderLoggedInActions()}
+      </Fragment>
+    );
+  }
+
+  private renderActions() {
+    const disabled: boolean = syncStore.state.sync === 'pending' || syncStore.state.sync === 'in_progress';
+
+    return (
+      <Fragment>
+        <button
+          class="ion-activatable"
+          onClick={() => this.newDeck()}
+          disabled={disabled}
+          aria-label={i18n.state.tools.new_presentation}>
+          <ion-ripple-effect></ion-ripple-effect>
+          <ion-icon aria-hidden="true" src="/assets/icons/ionicons/document.svg"></ion-icon>
+          <ion-label>{i18n.state.tools.new}</ion-label>
+        </button>
+
+        <button class="ion-activatable" onClick={() => this.openFilePicker()} disabled={disabled}>
+          <ion-ripple-effect></ion-ripple-effect>
+          <ion-icon aria-hidden="true" src="/assets/icons/ionicons/folder-open.svg"></ion-icon>
+          <ion-label>{i18n.state.tools.open}</ion-label>
+        </button>
+
+        <input type="file" accept="application/json" onChange={() => this.importData()} ref={(el) => (this.loadInput = el as HTMLInputElement)} tabindex="-1" />
+
+        <button class="ion-activatable" onClick={() => this.exportData()}>
+          <ion-ripple-effect></ion-ripple-effect>
+          <ion-icon aria-hidden="true" src="/assets/icons/ionicons/download.svg"></ion-icon>
+          <ion-label>{i18n.state.editor.export}</ion-label>
+        </button>
+      </Fragment>
     );
   }
 
   private renderSignIn() {
-    if (authStore.state.loggedIn || !this.signIn) {
+    if (authStore.state.loggedIn) {
       return undefined;
-    } else if (this.publish) {
-      return (
-        <button class="wide-device ion-padding-start ion-padding-end signin" onClick={() => signIn()} tabindex={0}>
-          <ion-label>{i18n.state.nav.sign_in}</ion-label>
-        </button>
-      );
     }
+
+    return (
+      <button class="ion-activatable" onClick={() => signIn()}>
+        <ion-ripple-effect></ion-ripple-effect>
+        <ion-icon aria-hidden="true" name="log-in-outline"></ion-icon>
+        <ion-label>{i18n.state.nav.sign_in}</ion-label>
+      </button>
+    );
   }
 
-  private renderLoggedIn() {
+  private renderLoggedInActions() {
     if (authStore.state.loggedIn && userStore.state.loaded) {
       return (
-        <button class="ion-padding-end" onClick={(e: UIEvent) => this.openMenu(e)} aria-label={i18n.state.nav.menu} tabindex={0}>
-          <app-avatar src={userStore.state.photoUrl}></app-avatar>
-        </button>
+        <Fragment>
+          {this.renderCloudStatus()}
+
+          <button class="ion-activatable" onClick={(e: UIEvent) => this.openMenu(e)} aria-label={i18n.state.nav.menu}>
+            <ion-ripple-effect></ion-ripple-effect>
+            <app-avatar src={userStore.state.photoUrl}></app-avatar>
+            <ion-label>{userStore.state.name}</ion-label>
+          </button>
+        </Fragment>
       );
-    } else {
+    }
+
+    return undefined;
+  }
+
+  private renderCloudStatus() {
+    if (!navigator.onLine) {
       return undefined;
     }
-  }
 
-  private renderPresentationButton() {
-    if (this.write && !this.publish) {
-      return (
-        <app-start-deck writeColor={themeStore.state.darkTheme ? 'light' : 'dark'} importColor={themeStore.state.darkTheme ? 'light' : 'dark'}></app-start-deck>
-      );
-    } else {
-      return null;
-    }
-  }
+    const label: string =
+      syncStore.state.sync === 'error'
+        ? i18n.state.tools.cloud_error
+        : syncStore.state.sync === 'in_progress'
+        ? i18n.state.tools.cloud_in_progress
+        : syncStore.state.sync === 'pending'
+          ? i18n.state.tools.cloud_pending
+        : i18n.state.tools.cloud_idle;
 
-  private renderPublishButton() {
-    if (this.publish) {
-      return (
-        <ion-button
-          class="publish ion-margin-end"
-          shape="round"
-          onClick={() => this.actionPublish.emit()}
-          mode="md"
-          color={themeStore.state.darkTheme ? 'light' : 'dark'}>
-          <ion-label>{i18n.state.nav.ready_to_share}</ion-label>
-        </ion-button>
-      );
-    } else {
-      return null;
-    }
+    return (
+      <button class={`cloud ${syncStore.state.sync}`} disabled={true} aria-label={label}>
+        {syncStore.state.sync === 'error' ? (
+          <ion-icon aria-hidden="true" src="/assets/icons/ionicons/cloud-offline.svg"></ion-icon>
+        ) : syncStore.state.sync === 'in_progress' ? (
+          <ion-icon aria-hidden="true" src="/assets/icons/ionicons/cloud-upload.svg"></ion-icon>
+        ) : syncStore.state.sync === 'pending' ? (
+          <ion-icon aria-hidden="true" src="/assets/icons/ionicons/cloud-pending.svg"></ion-icon>
+        ) : (
+          <ion-icon aria-hidden="true" src="/assets/icons/ionicons/cloud-done.svg"></ion-icon>
+        )}
+        <ion-label>{i18n.state.tools.cloud}</ion-label>
+      </button>
+    );
   }
 }

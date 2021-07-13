@@ -192,7 +192,6 @@ export namespace Components {
         "slideDidChange": EventEmitter<HTMLElement>;
     }
     interface AppEditor {
-        "deckId": string;
     }
     interface AppElementDelete {
     }
@@ -212,10 +211,6 @@ export namespace Components {
     interface AppGetHelp {
     }
     interface AppGif {
-    }
-    interface AppGoOffline {
-    }
-    interface AppGoOnline {
     }
     interface AppImage {
         "deck": boolean;
@@ -260,22 +255,16 @@ export namespace Components {
     }
     interface AppNavigation {
         "menuToggle": boolean;
-        "publish": boolean;
+        "signIn": boolean;
         "user": boolean;
-        "write": boolean;
     }
     interface AppNavigationActions {
-        "publish": boolean;
         "signIn": boolean;
-        "write": boolean;
     }
     interface AppNoTemplates {
     }
     interface AppNotes {
         "selectedElement": HTMLElement;
-    }
-    interface AppOffline {
-        "offline": boolean;
     }
     interface AppPhoto {
     }
@@ -341,11 +330,9 @@ export namespace Components {
     }
     interface AppSignin {
         "redirect": string;
-        "redirectId": string;
     }
     interface AppSigninPage {
         "redirect": string;
-        "redirectId": string;
     }
     interface AppSlideNavigate {
     }
@@ -747,18 +734,6 @@ declare global {
         prototype: HTMLAppGifElement;
         new (): HTMLAppGifElement;
     };
-    interface HTMLAppGoOfflineElement extends Components.AppGoOffline, HTMLStencilElement {
-    }
-    var HTMLAppGoOfflineElement: {
-        prototype: HTMLAppGoOfflineElement;
-        new (): HTMLAppGoOfflineElement;
-    };
-    interface HTMLAppGoOnlineElement extends Components.AppGoOnline, HTMLStencilElement {
-    }
-    var HTMLAppGoOnlineElement: {
-        prototype: HTMLAppGoOnlineElement;
-        new (): HTMLAppGoOnlineElement;
-    };
     interface HTMLAppImageElement extends Components.AppImage, HTMLStencilElement {
     }
     var HTMLAppImageElement: {
@@ -854,12 +829,6 @@ declare global {
     var HTMLAppNotesElement: {
         prototype: HTMLAppNotesElement;
         new (): HTMLAppNotesElement;
-    };
-    interface HTMLAppOfflineElement extends Components.AppOffline, HTMLStencilElement {
-    }
-    var HTMLAppOfflineElement: {
-        prototype: HTMLAppOfflineElement;
-        new (): HTMLAppOfflineElement;
     };
     interface HTMLAppPhotoElement extends Components.AppPhoto, HTMLStencilElement {
     }
@@ -1203,8 +1172,6 @@ declare global {
         "app-fullscreen-info": HTMLAppFullscreenInfoElement;
         "app-get-help": HTMLAppGetHelpElement;
         "app-gif": HTMLAppGifElement;
-        "app-go-offline": HTMLAppGoOfflineElement;
-        "app-go-online": HTMLAppGoOnlineElement;
         "app-image": HTMLAppImageElement;
         "app-image-columns": HTMLAppImageColumnsElement;
         "app-image-element": HTMLAppImageElementElement;
@@ -1221,7 +1188,6 @@ declare global {
         "app-navigation-actions": HTMLAppNavigationActionsElement;
         "app-no-templates": HTMLAppNoTemplatesElement;
         "app-notes": HTMLAppNotesElement;
-        "app-offline": HTMLAppOfflineElement;
         "app-photo": HTMLAppPhotoElement;
         "app-playground": HTMLAppPlaygroundElement;
         "app-playground-placeholder": HTMLAppPlaygroundPlaceholderElement;
@@ -1483,7 +1449,6 @@ declare namespace LocalJSX {
         "slideDidChange"?: EventEmitter<HTMLElement>;
     }
     interface AppEditor {
-        "deckId"?: string;
     }
     interface AppElementDelete {
     }
@@ -1505,14 +1470,6 @@ declare namespace LocalJSX {
     interface AppGetHelp {
     }
     interface AppGif {
-    }
-    interface AppGoOffline {
-        "onDoneOffline"?: (event: CustomEvent<void>) => void;
-        "onInProgress"?: (event: CustomEvent<boolean>) => void;
-    }
-    interface AppGoOnline {
-        "onDoneOnline"?: (event: CustomEvent<void>) => void;
-        "onInProgress"?: (event: CustomEvent<boolean>) => void;
     }
     interface AppImage {
         "deck"?: boolean;
@@ -1562,23 +1519,16 @@ declare namespace LocalJSX {
     }
     interface AppNavigation {
         "menuToggle"?: boolean;
-        "publish"?: boolean;
+        "signIn"?: boolean;
         "user"?: boolean;
-        "write"?: boolean;
     }
     interface AppNavigationActions {
-        "onActionPublish"?: (event: CustomEvent<void>) => void;
-        "publish"?: boolean;
         "signIn"?: boolean;
-        "write"?: boolean;
     }
     interface AppNoTemplates {
     }
     interface AppNotes {
         "selectedElement"?: HTMLElement;
-    }
-    interface AppOffline {
-        "offline"?: boolean;
     }
     interface AppPhoto {
     }
@@ -1649,11 +1599,9 @@ declare namespace LocalJSX {
     }
     interface AppSignin {
         "redirect"?: string;
-        "redirectId"?: string;
     }
     interface AppSigninPage {
         "redirect"?: string;
-        "redirectId"?: string;
     }
     interface AppSlideNavigate {
         "onReorder"?: (event: CustomEvent<ItemReorderEventDetail>) => void;
@@ -1803,8 +1751,6 @@ declare namespace LocalJSX {
         "app-fullscreen-info": AppFullscreenInfo;
         "app-get-help": AppGetHelp;
         "app-gif": AppGif;
-        "app-go-offline": AppGoOffline;
-        "app-go-online": AppGoOnline;
         "app-image": AppImage;
         "app-image-columns": AppImageColumns;
         "app-image-element": AppImageElement;
@@ -1821,7 +1767,6 @@ declare namespace LocalJSX {
         "app-navigation-actions": AppNavigationActions;
         "app-no-templates": AppNoTemplates;
         "app-notes": AppNotes;
-        "app-offline": AppOffline;
         "app-photo": AppPhoto;
         "app-playground": AppPlayground;
         "app-playground-placeholder": AppPlaygroundPlaceholder;
@@ -1929,8 +1874,6 @@ declare module "@stencil/core" {
             "app-fullscreen-info": LocalJSX.AppFullscreenInfo & JSXBase.HTMLAttributes<HTMLAppFullscreenInfoElement>;
             "app-get-help": LocalJSX.AppGetHelp & JSXBase.HTMLAttributes<HTMLAppGetHelpElement>;
             "app-gif": LocalJSX.AppGif & JSXBase.HTMLAttributes<HTMLAppGifElement>;
-            "app-go-offline": LocalJSX.AppGoOffline & JSXBase.HTMLAttributes<HTMLAppGoOfflineElement>;
-            "app-go-online": LocalJSX.AppGoOnline & JSXBase.HTMLAttributes<HTMLAppGoOnlineElement>;
             "app-image": LocalJSX.AppImage & JSXBase.HTMLAttributes<HTMLAppImageElement>;
             "app-image-columns": LocalJSX.AppImageColumns & JSXBase.HTMLAttributes<HTMLAppImageColumnsElement>;
             "app-image-element": LocalJSX.AppImageElement & JSXBase.HTMLAttributes<HTMLAppImageElementElement>;
@@ -1947,7 +1890,6 @@ declare module "@stencil/core" {
             "app-navigation-actions": LocalJSX.AppNavigationActions & JSXBase.HTMLAttributes<HTMLAppNavigationActionsElement>;
             "app-no-templates": LocalJSX.AppNoTemplates & JSXBase.HTMLAttributes<HTMLAppNoTemplatesElement>;
             "app-notes": LocalJSX.AppNotes & JSXBase.HTMLAttributes<HTMLAppNotesElement>;
-            "app-offline": LocalJSX.AppOffline & JSXBase.HTMLAttributes<HTMLAppOfflineElement>;
             "app-photo": LocalJSX.AppPhoto & JSXBase.HTMLAttributes<HTMLAppPhotoElement>;
             "app-playground": LocalJSX.AppPlayground & JSXBase.HTMLAttributes<HTMLAppPlaygroundElement>;
             "app-playground-placeholder": LocalJSX.AppPlaygroundPlaceholder & JSXBase.HTMLAttributes<HTMLAppPlaygroundPlaceholderElement>;

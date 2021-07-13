@@ -1,12 +1,21 @@
 app-navigation-actions {
-  div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+
+  padding: 0 8px;
+
+  input {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 1px;
+    height: 1px;
   }
 
-  button,
-  ion-router-link {
+  button {
     color: black;
     cursor: pointer;
 
@@ -14,11 +23,26 @@ app-navigation-actions {
 
     user-select: none;
 
-    letter-spacing: 0.06em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+    overflow: hidden;
+
+    margin: 0 8px;
+    padding: 4px;
+    border-radius: 4px;
 
     &:hover,
     &:active {
       border-bottom-color: transparent;
+    }
+
+    ion-label {
+      font-size: var(--font-size-small);
+      white-space: nowrap;
     }
   }
 
@@ -26,28 +50,21 @@ app-navigation-actions {
     border: none;
     font: inherit;
     background: none;
-    padding: 0;
 
     cursor: pointer;
     pointer-events: all;
   }
 
-  button.signin {
-    margin-right: 12px;
-  }
-
-  @media screen and (max-width: 392px) {
-    button.wide-device,
-    ion-router-link.wide-device {
-      display: none;
+  button.cloud {
+    &.error {
+      color: var(--ion-color-danger);
     }
   }
 }
 
 body.dark {
   app-navigation-actions {
-    button,
-    ion-router-link {
+    button {
       color: white;
     }
   }

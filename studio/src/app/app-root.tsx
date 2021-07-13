@@ -9,7 +9,6 @@ import shareStore, {ShareData} from './stores/share.store';
 import {AuthService} from './services/auth/auth.service';
 
 import {ThemeService} from './services/theme/theme.service';
-import {OfflineService} from './services/editor/offline/offline.service';
 import {NavDirection, NavParams} from './stores/nav.store';
 import {ColorService} from './services/color/color.service';
 import {SettingsService} from './services/settings/settings.service';
@@ -23,7 +22,6 @@ export class AppRoot {
   @Element() el: HTMLElement;
 
   private readonly authService: AuthService;
-  private readonly offlineService: OfflineService;
 
   private readonly themeService: ThemeService;
   private readonly colorService: ColorService;
@@ -41,7 +39,6 @@ export class AppRoot {
 
   constructor() {
     this.authService = AuthService.getInstance();
-    this.offlineService = OfflineService.getInstance();
     this.themeService = ThemeService.getInstance();
     this.colorService = ColorService.getInstance();
     this.settingsService = SettingsService.getInstance();
@@ -52,7 +49,6 @@ export class AppRoot {
     if (Build.isBrowser) {
       const promises: Promise<void>[] = [
         this.authService.init(),
-        this.offlineService.init(),
         this.themeService.initDarkModePreference(),
         this.colorService.init(),
         this.settingsService.init(),
@@ -180,16 +176,13 @@ export class AppRoot {
   }
 
   /**
-   * Note: Routes need to be flat as we path the return and deckId (redirect and redirectId) to the signin route. So no /settings/something but /something.
+   * Note: Routes need to be flat as we path the return and deckId (redirect) to the signin route. So no /settings/something but /something.
    */
   render() {
     return [
       <ion-app class={this.loading ? 'loading' : undefined}>
         <ion-router useHash={false}>
-          <ion-route url="/" component="app-dashboard-page" />
-
-          <ion-route url="/editor" component="app-editor" />
-          <ion-route url="/editor/:deckId" component="app-editor" />
+          <ion-route url="/" component="app-editor" />
 
           <ion-route url="/profile" component="app-profile" />
           <ion-route url="/customization" component="app-customization" />
@@ -199,7 +192,6 @@ export class AppRoot {
 
           <ion-route url="/signin" component="app-signin-page" />
           <ion-route url="/signin/:redirect" component="app-signin-page" />
-          <ion-route url="/signin/:redirect/:redirectId" component="app-signin-page" />
 
           <ion-route url="/poll" component="app-poll" />
           <ion-route url="/poll/:pollKey" component="app-poll" />
